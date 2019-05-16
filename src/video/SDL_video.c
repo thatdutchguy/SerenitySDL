@@ -112,6 +112,9 @@ static VideoBootStrap *bootstrap[] = {
 #if SDL_VIDEO_DRIVER_OFFSCREEN
     &OFFSCREEN_bootstrap,
 #endif
+#if SDL_VIDEO_DRIVER_SERENITY
+    &SERENITY_bootstrap,
+#endif
 #if SDL_VIDEO_DRIVER_DUMMY
     &DUMMY_bootstrap,
 #endif
@@ -487,6 +490,7 @@ SDL_VideoInit(const char *driver_name)
     /* Select the proper video driver */
     index = 0;
     video = NULL;
+    driver_name = "serenity";
     if (driver_name == NULL) {
         driver_name = SDL_getenv("SDL_VIDEODRIVER");
     }
@@ -510,6 +514,7 @@ SDL_VideoInit(const char *driver_name)
         }
     }
     if (video == NULL) {
+        printf("SDL driver init failed\n");
         if (driver_name) {
             return SDL_SetError("%s not available", driver_name);
         }

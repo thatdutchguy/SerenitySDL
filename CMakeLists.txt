@@ -1,9 +1,12 @@
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the SDL source code and call cmake from there")
-endif()
+#if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+#  message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the SDL source code and call cmake from there")
+#endif()
 
 cmake_minimum_required(VERSION 2.8.11)
-project(SDL2 C CXX)
+project(SDL2)
+
+set(UNIX 1)
+set(VIDEO_WAYLAND off)
 
 # !!! FIXME: this should probably do "MACOSX_RPATH ON" as a target property
 # !!! FIXME:  for the SDL2 shared library (so you get an
@@ -146,6 +149,7 @@ if (UNIX_OR_MAC_SYS AND NOT EMSCRIPTEN) # JavaScript does not yet have threading
 else()
   set(SDL_PTHREADS_ENABLED_BY_DEFAULT OFF)
 endif()
+set(SDL_PTHREADS_ENABLED_BY_DEFAULT OFF)
 
 # Default option knobs
 if(APPLE OR ARCH_64)
@@ -286,6 +290,7 @@ if(EMSCRIPTEN)
   set(SDL_CPUINFO_ENABLED_BY_DEFAULT OFF)
   set(SDL_DLOPEN_ENABLED_BY_DEFAULT OFF)
 endif()
+set(SDL_THREADS_ENABLED_BY_DEFAULT OFF)
 
 # When defined, respect CMake's BUILD_SHARED_LIBS setting:
 set(SDL_STATIC_ENABLED_BY_DEFAULT ON)
@@ -411,7 +416,6 @@ file(GLOB SOURCE_FILES
   ${SDL2_SOURCE_DIR}/src/timer/*.c
   ${SDL2_SOURCE_DIR}/src/video/*.c
   ${SDL2_SOURCE_DIR}/src/video/yuv2rgb/*.c)
-
 
 if(ASSERTIONS STREQUAL "auto")
   # Do nada - use optimization settings to determine the assertion level
@@ -1123,14 +1127,15 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID AND NOT RISCOS)
 
   if(SDL_VIDEO)
     # Need to check for Raspberry PI first and add platform specific compiler flags, otherwise the test for GLES fails!
-    CheckRPI()
-    CheckX11()
-    CheckDirectFB()
-    CheckOpenGLX11()
-    CheckOpenGLESX11()
-    CheckWayland()
-    CheckVivante()
-    CheckKMSDRM()
+    #CheckRPI()
+    #CheckX11()
+    #CheckDirectFB()
+    #CheckOpenGLX11()
+    #CheckOpenGLESX11()
+    #CheckWayland()
+    #CheckVivante()
+    #CheckKMSDRM()
+    CheckSerenity()
   endif()
 
   if(UNIX)
