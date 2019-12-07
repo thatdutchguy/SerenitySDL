@@ -29,6 +29,7 @@ extern "C" {
 #    include "../SDL_sysvideo.h"
 #    include "SDL_mouse.h"
 #    include "SDL_video.h"
+#    include "../../../include/SDL_scancode.h"
 }
 
 #    include "SDL_serenityevents_c.h"
@@ -147,6 +148,115 @@ static int conversion_map[] = {
     SDLK_BACKQUOTE,
     SDLK_BACKQUOTE,
     SDLK_UNKNOWN,
+};
+
+static SDL_Scancode scancode_map[] = {
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_ESCAPE,
+    SDL_SCANCODE_TAB,
+    SDL_SCANCODE_BACKSPACE,
+    SDL_SCANCODE_RETURN,
+    SDL_SCANCODE_INSERT,
+    SDL_SCANCODE_DELETE,
+    SDL_SCANCODE_PRINTSCREEN,
+    SDL_SCANCODE_SYSREQ,
+    SDL_SCANCODE_HOME,
+    SDL_SCANCODE_END,
+    SDL_SCANCODE_LEFT,
+    SDL_SCANCODE_UP,
+    SDL_SCANCODE_RIGHT,
+    SDL_SCANCODE_DOWN,
+    SDL_SCANCODE_PAGEUP,
+    SDL_SCANCODE_PAGEDOWN,
+    SDL_SCANCODE_LSHIFT,
+    SDL_SCANCODE_RSHIFT,
+    SDL_SCANCODE_LCTRL,
+    SDL_SCANCODE_LALT,
+    SDL_SCANCODE_CAPSLOCK,
+    SDL_SCANCODE_NUMLOCKCLEAR,
+    SDL_SCANCODE_SCROLLLOCK,
+    SDL_SCANCODE_F1,
+    SDL_SCANCODE_F2,
+    SDL_SCANCODE_F3,
+    SDL_SCANCODE_F4,
+    SDL_SCANCODE_F5,
+    SDL_SCANCODE_F6,
+    SDL_SCANCODE_F7,
+    SDL_SCANCODE_F8,
+    SDL_SCANCODE_F9,
+    SDL_SCANCODE_F10,
+    SDL_SCANCODE_F11,
+    SDL_SCANCODE_F12,
+    SDL_SCANCODE_SPACE,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_COMMA,
+    SDL_SCANCODE_MINUS,
+    SDL_SCANCODE_PERIOD,
+    SDL_SCANCODE_SLASH,
+    SDL_SCANCODE_0,
+    SDL_SCANCODE_1,
+    SDL_SCANCODE_2,
+    SDL_SCANCODE_3,
+    SDL_SCANCODE_4,
+    SDL_SCANCODE_5,
+    SDL_SCANCODE_6,
+    SDL_SCANCODE_7,
+    SDL_SCANCODE_8,
+    SDL_SCANCODE_9,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_EQUALS,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_A,
+    SDL_SCANCODE_B,
+    SDL_SCANCODE_C,
+    SDL_SCANCODE_D,
+    SDL_SCANCODE_E,
+    SDL_SCANCODE_F,
+    SDL_SCANCODE_G,
+    SDL_SCANCODE_H,
+    SDL_SCANCODE_I,
+    SDL_SCANCODE_J,
+    SDL_SCANCODE_K,
+    SDL_SCANCODE_L,
+    SDL_SCANCODE_M,
+    SDL_SCANCODE_N,
+    SDL_SCANCODE_O,
+    SDL_SCANCODE_P,
+    SDL_SCANCODE_Q,
+    SDL_SCANCODE_R,
+    SDL_SCANCODE_S,
+    SDL_SCANCODE_T,
+    SDL_SCANCODE_U,
+    SDL_SCANCODE_V,
+    SDL_SCANCODE_W,
+    SDL_SCANCODE_X,
+    SDL_SCANCODE_Y,
+    SDL_SCANCODE_Z,
+    SDL_SCANCODE_LEFTBRACKET,
+    SDL_SCANCODE_RIGHTBRACKET,
+    SDL_SCANCODE_BACKSLASH,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_KP_LEFTBRACE,
+    SDL_SCANCODE_KP_RIGHTBRACE,
+    SDL_SCANCODE_KP_VERTICALBAR,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
+    SDL_SCANCODE_UNKNOWN,
 
 };
 
@@ -303,6 +413,15 @@ SerenitySDLWidget::SerenitySDLWidget(SDL_Window* window, GWidget* parent)
     : GWidget(parent)
     , m_sdl_window(window)
 {
+    SDL_Keycode keymap[SDL_NUM_SCANCODES];
+    memset(keymap, 0, sizeof(keymap));
+
+    for (int i = 0; i < (sizeof(scancode_map) / sizeof(SDL_Keycode)); ++i) {
+        if (scancode_map[i] != SDL_SCANCODE_UNKNOWN)
+            keymap[scancode_map[i]] = conversion_map[i];
+    }
+    SDL_SetKeymap(0, keymap, SDL_NUM_SCANCODES);
+
     update();
 }
 
@@ -372,22 +491,12 @@ void SerenitySDLWidget::mouseup_event(GMouseEvent& event)
 
 void SerenitySDLWidget::keydown_event(GKeyEvent& event)
 {
-    SDL_Event sdl_event;
-
-    sdl_event.type = SDL_KEYDOWN;
-    sdl_event.key.state = SDL_PRESSED;
-    sdl_event.key.keysym.sym = conversion_map[event.key()];
-    SDL_PushEvent(&sdl_event);
+    SDL_SendKeyboardKey(SDL_PRESSED, scancode_map[event.key()]);
 }
 
 void SerenitySDLWidget::keyup_event(GKeyEvent& event)
 {
-    SDL_Event sdl_event;
-
-    sdl_event.type = SDL_KEYUP;
-    sdl_event.key.state = SDL_RELEASED;
-    sdl_event.key.keysym.sym = conversion_map[event.key()];
-    SDL_PushEvent(&sdl_event);
+    SDL_SendKeyboardKey(SDL_RELEASED, scancode_map[event.key()]);
 }
 
 void SerenitySDLWidget::enter_event(CEvent&)
