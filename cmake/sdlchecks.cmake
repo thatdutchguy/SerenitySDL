@@ -749,7 +749,7 @@ macro(CheckSerenity)
   file(GLOB SERENITY_SOURCES ${SDL2_SOURCE_DIR}/src/video/serenity/*.cpp)
   set(SOURCE_FILES ${SOURCE_FILES} ${SERENITY_SOURCES})
   set(SDL_VIDEO_DRIVER_SERENITY 1)
-  list(APPEND EXTRA_LIBS gui core)
+  list(APPEND EXTRA_LIBS ipc gui draw core)
 endmacro(CheckSerenity)
 
 # Requires:
