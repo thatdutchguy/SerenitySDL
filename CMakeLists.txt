@@ -149,7 +149,6 @@ if (UNIX_OR_MAC_SYS AND NOT EMSCRIPTEN) # JavaScript does not yet have threading
 else()
   set(SDL_PTHREADS_ENABLED_BY_DEFAULT OFF)
 endif()
-set(SDL_PTHREADS_ENABLED_BY_DEFAULT OFF)
 
 # Default option knobs
 if(APPLE OR ARCH_64)
@@ -290,7 +289,6 @@ if(EMSCRIPTEN)
   set(SDL_CPUINFO_ENABLED_BY_DEFAULT OFF)
   set(SDL_DLOPEN_ENABLED_BY_DEFAULT OFF)
 endif()
-set(SDL_THREADS_ENABLED_BY_DEFAULT OFF)
 
 # When defined, respect CMake's BUILD_SHARED_LIBS setting:
 set(SDL_STATIC_ENABLED_BY_DEFAULT ON)
