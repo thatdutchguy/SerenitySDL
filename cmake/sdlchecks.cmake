@@ -744,11 +744,14 @@ macro(CheckSerenity)
   message_warn("Enabling serenity!")
   ### FIXME do this properly
   set(HAVE_VIDEO_SERENITY TRUE)
+  set(HAVE_AUDIO_SERENITY TRUE)
   set(HAVE_SDL_VIDEO TRUE)
+  set(HAVE_SDL_AUDIO TRUE)
 
-  file(GLOB SERENITY_SOURCES ${SDL2_SOURCE_DIR}/src/video/serenity/*.cpp)
+  file(GLOB SERENITY_SOURCES ${SDL2_SOURCE_DIR}/src/video/serenity/*.cpp ${SDL2_SOURCE_DIR}/src/audio/serenity/*.cpp)
   set(SOURCE_FILES ${SOURCE_FILES} ${SERENITY_SOURCES})
   set(SDL_VIDEO_DRIVER_SERENITY 1)
+  set(SDL_AUDIO_DRIVER_SERENITY 1)
   list(APPEND EXTRA_LIBS ipc gui draw core)
 endmacro(CheckSerenity)
 
