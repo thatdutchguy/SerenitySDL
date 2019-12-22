@@ -32,7 +32,10 @@
 void
 SERENITY_PumpEvents(_THIS)
 {
-    CEventLoop::current().pump(CEventLoop::WaitMode::PollForEvents);
+    auto& loop = CEventLoop::current();
+    if (loop.was_exit_requested())
+        exit(0);
+    loop.pump(CEventLoop::WaitMode::PollForEvents);
 }
 
 

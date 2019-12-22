@@ -529,6 +529,11 @@ int Serenity_CreateWindow(_THIS, SDL_Window* window)
     w->m_window->set_main_widget(w->m_widget);
     dbgprintf("w->m_window size = %dx%d\n", w->m_window->width(),
         w->m_window->height());
+    w->m_window->on_close_request = [] {
+        if (SDL_SendQuit())
+            return GWindow::CloseRequestDecision::Close;
+        return GWindow::CloseRequestDecision::StayOpen;
+    };
     SERENITY_PumpEvents(_this);
 
     return 0;
