@@ -752,6 +752,7 @@ macro(CheckSerenity)
   set(SOURCE_FILES ${SOURCE_FILES} ${SERENITY_SOURCES})
   set(SDL_VIDEO_DRIVER_SERENITY 1)
   set(SDL_AUDIO_DRIVER_SERENITY 1)
+  set(SDL_THREAD_PTHREAD_RECURSIVE_MUTEX 1)
   list(APPEND EXTRA_LIBS ipc gui draw core)
 endmacro(CheckSerenity)
 
