@@ -27,15 +27,15 @@
 #include "SDL_serenityvideo.h"
 #include "SDL_serenityevents_c.h"
 
-#include <LibCore/CEventLoop.h>
+#include <LibCore/EventLoop.h>
 
 void
 SERENITY_PumpEvents(_THIS)
 {
-    auto& loop = CEventLoop::current();
+    auto& loop = Core::EventLoop::current();
     if (loop.was_exit_requested())
         exit(0);
-    loop.pump(CEventLoop::WaitMode::PollForEvents);
+    loop.pump(Core::EventLoop::WaitMode::PollForEvents);
 }
 
 

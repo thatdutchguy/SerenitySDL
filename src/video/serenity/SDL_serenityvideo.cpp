@@ -35,11 +35,12 @@ extern "C" {
 #    include "SDL_serenityevents_c.h"
 #    include "SDL_serenityvideo.h"
 
-#    include <LibCore/CEventLoop.h>
-#    include <LibGUI/GApplication.h>
-#    include <LibGUI/GPainter.h>
-#    include <LibGUI/GWidget.h>
-#    include <LibGUI/GWindow.h>
+#    include <LibCore/EventLoop.h>
+#    include <LibGUI/Application.h>
+#    include <LibGUI/Painter.h>
+#    include <LibGUI/Widget.h>
+#    include <LibGUI/Window.h>
+#    include <LibGfx/Bitmap.h>
 
 static int conversion_map[] = {
     SDLK_UNKNOWN,
@@ -331,7 +332,7 @@ static SDL_VideoDevice* SERENITY_CreateDevice(int devindex)
 VideoBootStrap SERENITY_bootstrap = { "serenity", "SDL serenity video driver",
     SERENITY_Available, SERENITY_CreateDevice };
 
-static GApplication* gapp;
+static GUI::Application* gapp;
 
 // TODO: Ask kling about being able to query this from GWindow!
 struct ScreenMode {
@@ -346,7 +347,7 @@ static ScreenMode modes[] = {
 int SERENITY_VideoInit(_THIS)
 {
     ASSERT(!gapp);
-    gapp = new GApplication(0, nullptr);
+    gapp = new GUI::Application(0, nullptr);
     SDL_DisplayMode mode;
 
     dbgprintf("SDL2: Initialising SDL application\n");
@@ -383,34 +384,34 @@ void SERENITY_VideoQuit(_THIS)
     delete gapp;
 }
 
-class SerenitySDLWidget final : public GWidget {
+class SerenitySDLWidget final : public GUI::Widget {
     C_OBJECT(SerenitySDLWidget)
 public:
-    SerenitySDLWidget(SDL_Window* window, GWidget* parent = nullptr);
-    RefPtr<GraphicsBitmap> m_buffer;
+    SerenitySDLWidget(SDL_Window* window, GUI::Widget* parent = nullptr);
+    RefPtr<Gfx::Bitmap> m_buffer;
 
 protected:
-    void paint_event(GPaintEvent&) override;
-    void resize_event(GResizeEvent&) override;
-    void show_event(GShowEvent&) override;
-    void hide_event(GHideEvent&) override;
+    void paint_event(GUI::PaintEvent&) override;
+    void resize_event(GUI::ResizeEvent&) override;
+    void show_event(GUI::ShowEvent&) override;
+    void hide_event(GUI::HideEvent&) override;
 
-    void mousedown_event(GMouseEvent&) override;
-    void mousemove_event(GMouseEvent&) override;
-    void mouseup_event(GMouseEvent&) override;
+    void mousedown_event(GUI::MouseEvent&) override;
+    void mousemove_event(GUI::MouseEvent&) override;
+    void mouseup_event(GUI::MouseEvent&) override;
 
-    void keydown_event(GKeyEvent& event) override;
-    void keyup_event(GKeyEvent& event) override;
+    void keydown_event(GUI::KeyEvent& event) override;
+    void keyup_event(GUI::KeyEvent& event) override;
 
-    void enter_event(CEvent&) override;
-    void leave_event(CEvent&) override;
+    void enter_event(Core::Event&) override;
+    void leave_event(Core::Event&) override;
 
 private:
     SDL_Window* m_sdl_window = nullptr;
 };
 
-SerenitySDLWidget::SerenitySDLWidget(SDL_Window* window, GWidget* parent)
-    : GWidget(parent)
+SerenitySDLWidget::SerenitySDLWidget(SDL_Window* window, GUI::Widget* parent)
+    : GUI::Widget(parent)
     , m_sdl_window(window)
 {
     SDL_Keycode keymap[SDL_NUM_SCANCODES];
@@ -425,7 +426,7 @@ SerenitySDLWidget::SerenitySDLWidget(SDL_Window* window, GWidget* parent)
     update();
 }
 
-void SerenitySDLWidget::paint_event(GPaintEvent& event)
+void SerenitySDLWidget::paint_event(GUI::PaintEvent& event)
 {
     ASSERT(size() == m_buffer->size());
     if (size() != m_buffer->size()) {
@@ -434,37 +435,37 @@ void SerenitySDLWidget::paint_event(GPaintEvent& event)
     // dbgprintf("SerenitySDLWidget::paint_event %dx%d, %dx%d\n",
     // event.rect().x(), event.rect().y(), event.rect().width(),
     // event.rect().height());
-    GPainter painter(*this);
+    GUI::Painter painter(*this);
     painter.add_clip_rect(event.rect());
-    painter.blit(Point(0, 0), *m_buffer, event.rect());
+    painter.blit(Gfx::Point(0, 0), *m_buffer, event.rect());
 }
-void SerenitySDLWidget::resize_event(GResizeEvent&)
+void SerenitySDLWidget::resize_event(GUI::ResizeEvent&)
 {
     dbgprintf("SerenitySDLWidget::resize_event\n");
     SDL_SendWindowEvent(m_sdl_window, SDL_WINDOWEVENT_RESIZED, width(), height());
 }
-void SerenitySDLWidget::show_event(GShowEvent&)
+void SerenitySDLWidget::show_event(GUI::ShowEvent&)
 {
     dbgprintf("SerenitySDLWidget::show_event\n");
     SDL_SendWindowEvent(m_sdl_window, SDL_WINDOWEVENT_SHOWN, 0, 0);
 }
-void SerenitySDLWidget::hide_event(GHideEvent&)
+void SerenitySDLWidget::hide_event(GUI::HideEvent&)
 {
     dbgprintf("SerenitySDLWidget::hide_event\n");
     SDL_SendWindowEvent(m_sdl_window, SDL_WINDOWEVENT_HIDDEN, 0, 0);
 }
 
-static int mapButton(GMouseButton button)
+static int map_button(GUI::MouseButton button)
 {
     switch (button) {
-    case GMouseButton::None:
+    case GUI::MouseButton::None:
         ASSERT(false);
         break;
-    case GMouseButton::Left:
+    case GUI::MouseButton::Left:
         return SDL_BUTTON_LEFT;
-    case GMouseButton::Middle:
+    case GUI::MouseButton::Middle:
         return SDL_BUTTON_MIDDLE;
-    case GMouseButton::Right:
+    case GUI::MouseButton::Right:
         return SDL_BUTTON_RIGHT;
     }
 
@@ -472,50 +473,50 @@ static int mapButton(GMouseButton button)
     return 0;
 }
 
-void SerenitySDLWidget::mousedown_event(GMouseEvent& event)
+void SerenitySDLWidget::mousedown_event(GUI::MouseEvent& event)
 {
     SDL_SendMouseMotion(m_sdl_window, 0, 0, event.x(), event.y());
-    SDL_SendMouseButton(m_sdl_window, 0, SDL_PRESSED, mapButton(event.button()));
+    SDL_SendMouseButton(m_sdl_window, 0, SDL_PRESSED, map_button(event.button()));
 }
 
-void SerenitySDLWidget::mousemove_event(GMouseEvent& event)
+void SerenitySDLWidget::mousemove_event(GUI::MouseEvent& event)
 {
     SDL_SendMouseMotion(m_sdl_window, 0, 0, event.x(), event.y());
 }
 
-void SerenitySDLWidget::mouseup_event(GMouseEvent& event)
+void SerenitySDLWidget::mouseup_event(GUI::MouseEvent& event)
 {
     SDL_SendMouseMotion(m_sdl_window, 0, 0, event.x(), event.y());
-    SDL_SendMouseButton(m_sdl_window, 0, SDL_RELEASED, mapButton(event.button()));
+    SDL_SendMouseButton(m_sdl_window, 0, SDL_RELEASED, map_button(event.button()));
 }
 
-void SerenitySDLWidget::keydown_event(GKeyEvent& event)
+void SerenitySDLWidget::keydown_event(GUI::KeyEvent& event)
 {
     SDL_SendKeyboardKey(SDL_PRESSED, scancode_map[event.key()]);
 }
 
-void SerenitySDLWidget::keyup_event(GKeyEvent& event)
+void SerenitySDLWidget::keyup_event(GUI::KeyEvent& event)
 {
     SDL_SendKeyboardKey(SDL_RELEASED, scancode_map[event.key()]);
 }
 
-void SerenitySDLWidget::enter_event(CEvent&)
+void SerenitySDLWidget::enter_event(Core::Event&)
 {
     SDL_SetMouseFocus(m_sdl_window);
 }
 
-void SerenitySDLWidget::leave_event(CEvent&) { SDL_SetMouseFocus(nullptr); }
+void SerenitySDLWidget::leave_event(Core::Event&) { SDL_SetMouseFocus(nullptr); }
 
 struct SerenityPlatformWindow final {
     SerenityPlatformWindow(SDL_Window* sdl_window)
-        : m_window(GWindow::construct())
+        : m_window(GUI::Window::construct())
         , m_widget(SerenitySDLWidget::construct(sdl_window, nullptr))
     {
         m_window->resize(sdl_window->w, sdl_window->h);
         m_window->set_resizable(false);
     }
 
-    RefPtr<GWindow> m_window;
+    RefPtr<GUI::Window> m_window;
     NonnullRefPtr<SerenitySDLWidget> m_widget;
 };
 
@@ -531,8 +532,8 @@ int Serenity_CreateWindow(_THIS, SDL_Window* window)
         w->m_window->height());
     w->m_window->on_close_request = [] {
         if (SDL_SendQuit())
-            return GWindow::CloseRequestDecision::Close;
-        return GWindow::CloseRequestDecision::StayOpen;
+            return GUI::Window::CloseRequestDecision::Close;
+        return GUI::Window::CloseRequestDecision::StayOpen;
     };
     SERENITY_PumpEvents(_this);
 
@@ -583,9 +584,9 @@ int Serenity_CreateWindowFramebuffer(_THIS, SDL_Window* window, Uint32* format,
         window->h);
     auto win = static_cast<SerenityPlatformWindow*>(window->driverdata);
     *format = SDL_PIXELFORMAT_RGB888;
-    win->m_widget->m_buffer = GraphicsBitmap::create(
-        GraphicsBitmap::Format::RGB32,
-        Size(win->m_widget->width(), win->m_widget->height()));
+    win->m_widget->m_buffer = Gfx::Bitmap::create(
+        Gfx::BitmapFormat::RGB32,
+        Gfx::Size(win->m_widget->width(), win->m_widget->height()));
     *pitch = win->m_widget->m_buffer->pitch();
     *pixels = win->m_widget->m_buffer->bits(0);
     dbgprintf("Created framebuffer %dx%d\n", win->m_widget->width(),
@@ -598,7 +599,7 @@ int Serenity_UpdateWindowFramebuffer(_THIS, SDL_Window* window,
 {
     auto win = static_cast<SerenityPlatformWindow*>(window->driverdata);
     for (int i = 0; i < numrects; i++) {
-        win->m_widget->update(Rect(rects[i].x, rects[i].y, rects[i].w, rects[i].h));
+        win->m_widget->update(Gfx::Rect(rects[i].x, rects[i].y, rects[i].w, rects[i].h));
     }
     SERENITY_PumpEvents(_this);
 
