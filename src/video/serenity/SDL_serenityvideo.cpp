@@ -516,7 +516,7 @@ struct SerenityPlatformWindow final {
         m_window->set_resizable(false);
     }
 
-    RefPtr<GUI::Window> m_window;
+    NonnullRefPtr<GUI::Window> m_window;
     NonnullRefPtr<SerenitySDLWidget> m_widget;
 };
 
