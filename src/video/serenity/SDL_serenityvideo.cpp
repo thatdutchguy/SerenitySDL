@@ -387,7 +387,7 @@ void SERENITY_VideoQuit(_THIS)
 class SerenitySDLWidget final : public GUI::Widget {
     C_OBJECT(SerenitySDLWidget)
 public:
-    SerenitySDLWidget(SDL_Window* window, GUI::Widget* parent = nullptr);
+    explicit SerenitySDLWidget(SDL_Window*);
     RefPtr<Gfx::Bitmap> m_buffer;
 
 protected:
@@ -410,9 +410,8 @@ private:
     SDL_Window* m_sdl_window = nullptr;
 };
 
-SerenitySDLWidget::SerenitySDLWidget(SDL_Window* window, GUI::Widget* parent)
-    : GUI::Widget(parent)
-    , m_sdl_window(window)
+SerenitySDLWidget::SerenitySDLWidget(SDL_Window* window)
+    : m_sdl_window(window)
 {
     SDL_Keycode keymap[SDL_NUM_SCANCODES];
     memset(keymap, 0, sizeof(keymap));
@@ -510,7 +509,7 @@ void SerenitySDLWidget::leave_event(Core::Event&) { SDL_SetMouseFocus(nullptr); 
 struct SerenityPlatformWindow final {
     SerenityPlatformWindow(SDL_Window* sdl_window)
         : m_window(GUI::Window::construct())
-        , m_widget(SerenitySDLWidget::construct(sdl_window, nullptr))
+        , m_widget(SerenitySDLWidget::construct(sdl_window))
     {
         m_window->resize(sdl_window->w, sdl_window->h);
         m_window->set_resizable(false);
