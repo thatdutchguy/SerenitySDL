@@ -332,7 +332,7 @@ static SDL_VideoDevice* SERENITY_CreateDevice(int devindex)
 VideoBootStrap SERENITY_bootstrap = { "serenity", "SDL serenity video driver",
     SERENITY_Available, SERENITY_CreateDevice };
 
-static GUI::Application* gapp;
+static RefPtr<GUI::Application> g_app;
 
 // TODO: Ask kling about being able to query this from GWindow!
 struct ScreenMode {
@@ -346,8 +346,8 @@ static ScreenMode modes[] = {
 
 int SERENITY_VideoInit(_THIS)
 {
-    ASSERT(!gapp);
-    gapp = new GUI::Application(0, nullptr);
+    ASSERT(!g_app);
+    g_app = GUI::Application::construct(0, nullptr);
     SDL_DisplayMode mode;
 
     dbgprintf("SDL2: Initialising SDL application\n");
@@ -381,7 +381,7 @@ static int SERENITY_SetDisplayMode(_THIS, SDL_VideoDisplay* display,
 void SERENITY_VideoQuit(_THIS)
 {
     dbgprintf("SERENITY_VideoQuit\n");
-    delete gapp;
+    g_app->quit();
 }
 
 class SerenitySDLWidget final : public GUI::Widget {
