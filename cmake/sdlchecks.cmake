@@ -753,7 +753,7 @@ macro(CheckSerenity)
   set(SDL_VIDEO_DRIVER_SERENITY 1)
   set(SDL_AUDIO_DRIVER_SERENITY 1)
   set(SDL_THREAD_PTHREAD_RECURSIVE_MUTEX 1)
-  list(APPEND EXTRA_LIBS ipc gui draw core)
+  list(APPEND EXTRA_LIBS ipc gui gfx core)
 endmacro(CheckSerenity)
 
 # Requires:
