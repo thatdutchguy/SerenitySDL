@@ -748,6 +748,8 @@ macro(CheckSerenity)
   set(HAVE_SDL_VIDEO TRUE)
   set(HAVE_SDL_AUDIO TRUE)
 
+  set(CMAKE_CXX_FLAGS "-std=c++2a ${CMAKE_CXX_FLAGS}")
+
   file(GLOB SERENITY_SOURCES ${SDL2_SOURCE_DIR}/src/video/serenity/*.cpp ${SDL2_SOURCE_DIR}/src/audio/serenity/*.cpp)
   set(SOURCE_FILES ${SOURCE_FILES} ${SERENITY_SOURCES})
   set(SDL_VIDEO_DRIVER_SERENITY 1)
