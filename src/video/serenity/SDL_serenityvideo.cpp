@@ -273,7 +273,7 @@ static int SERENITY_Available(void) { return (1); }
 
 static void SERENITY_DeleteDevice(SDL_VideoDevice* device)
 {
-    dbgprintf("SERENITY_DeleteDevice\n");
+    dbgln("SERENITY_DeleteDevice");
     SDL_free(device);
 }
 
@@ -298,7 +298,7 @@ static SDL_VideoDevice* SERENITY_CreateDevice(int devindex)
 {
     SDL_VideoDevice* device;
 
-    dbgprintf("SERENITY_CreateDevice %d\n", devindex);
+    dbgln("SERENITY_CreateDevice {}", devindex);
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice*)SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (!device) {
@@ -350,7 +350,7 @@ int SERENITY_VideoInit(_THIS)
     g_app = GUI::Application::construct(0, nullptr);
     SDL_DisplayMode mode;
 
-    dbgprintf("SDL2: Initialising SDL application\n");
+    dbgln("SDL2: Initialising SDL application");
 
     for (int i = 0; i < 5; i++) {
         SDL_DisplayMode mode;
@@ -374,13 +374,13 @@ int SERENITY_VideoInit(_THIS)
 static int SERENITY_SetDisplayMode(_THIS, SDL_VideoDisplay* display,
     SDL_DisplayMode* mode)
 {
-    dbgprintf("SERENITY_SetDisplayMode\n");
+    dbgln("SERENITY_SetDisplayMode");
     return 0;
 }
 
 void SERENITY_VideoQuit(_THIS)
 {
-    dbgprintf("SERENITY_VideoQuit\n");
+    dbgln("SERENITY_VideoQuit");
     g_app->quit();
 }
 
@@ -431,26 +431,20 @@ void SerenitySDLWidget::paint_event(GUI::PaintEvent& event)
     if (size() != m_buffer->size()) {
         return; // can't paint this
     }
-    // dbgprintf("SerenitySDLWidget::paint_event %dx%d, %dx%d\n",
-    // event.rect().x(), event.rect().y(), event.rect().width(),
-    // event.rect().height());
     GUI::Painter painter(*this);
     painter.add_clip_rect(event.rect());
     painter.blit(Gfx::IntPoint(0, 0), *m_buffer, event.rect());
 }
 void SerenitySDLWidget::resize_event(GUI::ResizeEvent&)
 {
-    dbgprintf("SerenitySDLWidget::resize_event\n");
     SDL_SendWindowEvent(m_sdl_window, SDL_WINDOWEVENT_RESIZED, width(), height());
 }
 void SerenitySDLWidget::show_event(GUI::ShowEvent&)
 {
-    dbgprintf("SerenitySDLWidget::show_event\n");
     SDL_SendWindowEvent(m_sdl_window, SDL_WINDOWEVENT_SHOWN, 0, 0);
 }
 void SerenitySDLWidget::hide_event(GUI::HideEvent&)
 {
-    dbgprintf("SerenitySDLWidget::hide_event\n");
     SDL_SendWindowEvent(m_sdl_window, SDL_WINDOWEVENT_HIDDEN, 0, 0);
 }
 
@@ -521,14 +515,12 @@ struct SerenityPlatformWindow final {
 
 int Serenity_CreateWindow(_THIS, SDL_Window* window)
 {
-    dbgprintf("SDL2: Creating new window of size %dx%d\n", window->w, window->h);
+    dbgln("SDL2: Creating new window of size {}x{}", window->w, window->h);
     auto w = new SerenityPlatformWindow(window);
     window->driverdata = w;
     w->m_window->set_double_buffering_enabled(false);
     w->m_widget->set_fill_with_background_color(false);
     w->m_window->set_main_widget(w->m_widget);
-    dbgprintf("w->m_window size = %dx%d\n", w->m_window->width(),
-        w->m_window->height());
     w->m_window->on_close_request = [] {
         if (SDL_SendQuit())
             return GUI::Window::CloseRequestDecision::Close;
@@ -565,7 +557,7 @@ void Serenity_SetWindowFullscreen(_THIS, SDL_Window* window,
     SDL_VideoDisplay* display,
     SDL_bool fullscreen)
 {
-    dbgprintf("Attempting to set SDL Window fullscreen to %d\n", fullscreen);
+    dbgln("Attempting to set SDL Window fullscreen to {}", (bool)fullscreen);
     auto win = static_cast<SerenityPlatformWindow*>(window->driverdata);
     win->m_window->set_fullscreen(fullscreen);
 }
@@ -579,8 +571,7 @@ void Serenity_DestroyWindow(_THIS, SDL_Window* window)
 int Serenity_CreateWindowFramebuffer(_THIS, SDL_Window* window, Uint32* format,
     void** pixels, int* pitch)
 {
-    dbgprintf("SDL2: Creating a new framebuffer of size %dx%d\n", window->w,
-        window->h);
+    dbgln("SDL2: Creating a new framebuffer of size {}x{}", window->w, window->h);
     auto win = static_cast<SerenityPlatformWindow*>(window->driverdata);
     *format = SDL_PIXELFORMAT_RGB888;
     win->m_widget->m_buffer = Gfx::Bitmap::create(
@@ -588,8 +579,7 @@ int Serenity_CreateWindowFramebuffer(_THIS, SDL_Window* window, Uint32* format,
         Gfx::IntSize(win->m_widget->width(), win->m_widget->height()));
     *pitch = win->m_widget->m_buffer->pitch();
     *pixels = win->m_widget->m_buffer->scanline(0);
-    dbgprintf("Created framebuffer %dx%d\n", win->m_widget->width(),
-        win->m_widget->height());
+    dbgln("Created framebuffer {}x{}", win->m_widget->width(), win->m_widget->height());
     return 0;
 }
 
@@ -608,8 +598,7 @@ int Serenity_UpdateWindowFramebuffer(_THIS, SDL_Window* window,
 void Serenity_DestroyWindowFramebuffer(_THIS, SDL_Window* window)
 {
     auto win = static_cast<SerenityPlatformWindow*>(window->driverdata);
-    dbgprintf("DESTROY framebuffer %dx%d\n", win->m_widget->width(),
-        win->m_widget->height());
+    dbgln("DESTROY framebuffer {}x{}", win->m_widget->width(), win->m_widget->height());
 }
 
 #endif /* SDL_VIDEO_DRIVER_SERENITY */

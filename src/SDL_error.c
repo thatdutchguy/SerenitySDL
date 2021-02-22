@@ -115,7 +115,7 @@ SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
 
     // #### SERENITY: HACK: show everything that's going on
     SDL_GetErrorMsg(errmsg, sizeof(errmsg));
-    dbgprintf("%s", errmsg);
+    dbgputstr(errmsg, strlen(errmsg));
 
     if (SDL_LogGetPriority(SDL_LOG_CATEGORY_ERROR) <= SDL_LOG_PRIORITY_DEBUG) {
         /* If we are in debug mode, print out an error message
