@@ -346,7 +346,7 @@ static ScreenMode modes[] = {
 
 int SERENITY_VideoInit(_THIS)
 {
-    ASSERT(!g_app);
+    VERIFY(!g_app);
     g_app = GUI::Application::construct(0, nullptr);
     SDL_DisplayMode mode;
 
@@ -427,7 +427,7 @@ SerenitySDLWidget::SerenitySDLWidget(SDL_Window* window)
 
 void SerenitySDLWidget::paint_event(GUI::PaintEvent& event)
 {
-    ASSERT(size() == m_buffer->size());
+    VERIFY(size() == m_buffer->size());
     if (size() != m_buffer->size()) {
         return; // can't paint this
     }
@@ -452,7 +452,7 @@ static int map_button(GUI::MouseButton button)
 {
     switch (button) {
     case GUI::MouseButton::None:
-        ASSERT(false);
+        VERIFY(false);
         break;
     case GUI::MouseButton::Left:
         return SDL_BUTTON_LEFT;
@@ -462,7 +462,7 @@ static int map_button(GUI::MouseButton button)
         return SDL_BUTTON_RIGHT;
     }
 
-    ASSERT_NOT_REACHED();
+    VERIFY_NOT_REACHED();
     return 0;
 }
 
